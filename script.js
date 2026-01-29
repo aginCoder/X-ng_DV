@@ -227,8 +227,6 @@ function uploadGalleryImages() {
         return;
     }
     
-    // Note: Trong môi trường thực tế, bạn cần upload lên server
-    // Ở đây chúng ta sẽ sử dụng FileReader để chuyển đổi thành base64
     let filesProcessed = 0;
     const newImages = [];
     
@@ -320,7 +318,7 @@ function changeLightboxImage(n) {
 }
 
 // ===== Email Configuration =====
-emailjs.init('YOUR_PUBLIC_KEY'); // Thay thế bằng Public Key từ EmailJS
+emailjs.init('YOUR_PUBLIC_KEY'); 
 
 // ===== Contact Form Handler =====
 function handleContactForm(event) {
@@ -367,7 +365,5 @@ window.addEventListener('scroll', function() {
     // Có thể thêm các hiệu ứng scroll khác ở đây
 });
 
-// ===== Demo Credentials Display (optional) =====
 // Uncomment để hiển thị thông tin demo trong console
 console.log('%c🔑 Demo Credentials', 'color: #dc143c; font-size: 16px; font-weight: bold;');
-console.log('%cUsername: admin\nPassword: 123456', 'color: #333; font-size: 12px;');
