@@ -515,6 +515,7 @@ body {
     border-radius: var(--border-radius);
     box-shadow: 0 12px 30px rgba(0,0,0,0.3);
     display: block;
+    min-height: 140px;
 }
 
 .carousel-prev,
@@ -540,13 +541,17 @@ body {
 .carousel-next { right: 12px; }
 
 .carousel-thumbs {
-    display: flex;
     gap: 10px;
     width: 100%;
     max-width: 900px;
     justify-content: center;
     overflow-x: auto;
     padding-bottom: 6px;
+}
+
+/* allow thumbnails to wrap on narrow screens so none disappear */
+.carousel-thumbs {
+    flex-wrap: wrap;
 }
 
 .carousel-thumb {
