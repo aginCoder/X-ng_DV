@@ -103,7 +103,8 @@ function loadGalleryImages() {
     if (!container) return;
 
     const images = getGalleryImages();
-    // build carousel markup
+    
+    // Build carousel markup
     container.innerHTML = `
         <div class="carousel" id="carousel">
             <button class="carousel-prev" id="carouselPrev">‹</button>
@@ -121,17 +122,46 @@ function loadGalleryImages() {
         t.alt = img.alt;
         t.addEventListener('click', () => {
             carouselGoto(i);
+            stopAutoSlide();
+            startAutoSlide();
         });
         thumbs.appendChild(t);
     });
 
     // attach prev/next
-    document.getElementById('carouselPrev').addEventListener('click', () => carouselChange(-1));
-    document.getElementById('carouselNext').addEventListener('click', () => carouselChange(1));
+    document.getElementById('carouselPrev').addEventListener('click', () => {
+        carouselChange(-1);
+        stopAutoSlide();
+        startAutoSlide();
+    });
+    document.getElementById('carouselNext').addEventListener('click', () => {
+        carouselChange(1);
+        stopAutoSlide();
+        startAutoSlide();
+    });
 
     // click on main image opens lightbox at that index
     document.getElementById('carouselImg').addEventListener('click', () => openLightboxByIndex(carouselIndex));
     carouselIndex = 0;
+    
+    // Start auto-slide
+    startAutoSlide();
+}
+
+let autoSlideInterval = null;
+
+function startAutoSlide() {
+    const images = getGalleryImages();
+    autoSlideInterval = setInterval(() => {
+        carouselChange(1);
+    }, 4500);
+}
+
+function stopAutoSlide() {
+    if (autoSlideInterval) {
+        clearInterval(autoSlideInterval);
+        autoSlideInterval = null;
+    }
 }
 
 // ===== Event Listeners =====
