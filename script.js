@@ -344,33 +344,16 @@ function saveContact() {
 function loadCurrentGalleryList() {
     const galleryList = document.getElementById('currentGalleryList');
     galleryList.innerHTML = '';
-    const galleryImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
-    if (galleryImages.length === 0) {
-        // fallback: read from DOM
-        const galleryItems = document.querySelectorAll('#galleryGrid .gallery-item');
-        galleryItems.forEach((item, index) => {
-            const img = item.querySelector('.gallery-img');
-            const src = img ? img.src : '';
-            const alt = img ? img.alt : '';
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'gallery-item-preview';
-            itemDiv.innerHTML = `
-                <img src="${src}" alt="${alt}">
-                <button class="delete-btn" onclick="deleteGalleryItem('${src}')" title="Xóa ảnh">×</button>
-            `;
-            galleryList.appendChild(itemDiv);
-        });
-    } else {
-        galleryImages.forEach(imgData => {
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'gallery-item-preview';
-            itemDiv.innerHTML = `
-                <img src="${imgData.src}" alt="${imgData.alt}">
-                <button class="delete-btn" onclick="deleteGalleryItem('${imgData.src}')" title="Xóa ảnh">×</button>
-            `;
-            galleryList.appendChild(itemDiv);
-        });
-    }
+    const galleryImages = getGalleryImages();
+    galleryImages.forEach(imgData => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'gallery-item-preview';
+        itemDiv.innerHTML = `
+            <img src="${imgData.src}" alt="${imgData.alt}">
+            <button class="delete-btn" onclick="deleteGalleryItem('${imgData.src}')" title="Xóa ảnh">×</button>
+        `;
+        galleryList.appendChild(itemDiv);
+    });
 }
 
 function uploadGalleryImages() {
@@ -486,23 +469,25 @@ function deleteGalleryItem(src) {
 
 // ===== Lightbox Functions =====
 let currentLightboxIndex = 0;
-const galleryImages = document.querySelectorAll('#galleryGrid .gallery-img');
 
 function openLightbox(element) {
     const lightbox = document.getElementById('lightbox');
-    const img = element.querySelector('.gallery-img');
+    const img = element.querySelector ? element.querySelector('.gallery-img') : null;
     const lightboxImg = document.getElementById('lightboxImg');
-    
-    // Find current image index
-    const images = document.querySelectorAll('#galleryGrid .gallery-img');
-    for (let i = 0; i < images.length; i++) {
-        if (images[i] === img) {
-            currentLightboxIndex = i;
-            break;
+    const images = getGalleryImages();
+    if (img) {
+        // find index by src
+        for (let i = 0; i < images.length; i++) {
+            if (images[i].src === img.src) {
+                currentLightboxIndex = i;
+                break;
+            }
         }
+        lightboxImg.src = img.src;
+    } else if (images && images.length > 0) {
+        currentLightboxIndex = 0;
+        lightboxImg.src = images[0].src;
     }
-    
-    lightboxImg.src = img.src;
     lightbox.style.display = 'block';
     document.body.style.overflow = 'hidden';
 }
@@ -513,31 +498,24 @@ function closeLightbox() {
 }
 
 function changeLightboxImage(n) {
-    const images = document.querySelectorAll('#galleryGrid .gallery-img');
+    const images = getGalleryImages();
     if (!images || images.length === 0) return;
 
     const lightboxImg = document.getElementById('lightboxImg');
-    const oldIndex = currentLightboxIndex;
     let newIndex = currentLightboxIndex + n;
     if (newIndex >= images.length) newIndex = 0;
     if (newIndex < 0) newIndex = images.length - 1;
 
-    // determine direction
     const direction = n > 0 ? 'left' : 'right';
     const outClass = 'slide-out-' + direction;
     const inClass = 'slide-in-' + direction;
 
-    // animate out, then swap src, then animate in
     lightboxImg.classList.add(outClass);
     lightboxImg.addEventListener('animationend', function handlerOut() {
         lightboxImg.removeEventListener('animationend', handlerOut);
         lightboxImg.classList.remove(outClass);
-
-        // swap image
         currentLightboxIndex = newIndex;
         lightboxImg.src = images[currentLightboxIndex].src;
-
-        // animate in
         lightboxImg.classList.add(inClass);
         lightboxImg.addEventListener('animationend', function handlerIn() {
             lightboxImg.removeEventListener('animationend', handlerIn);
